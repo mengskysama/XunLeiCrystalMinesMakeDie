@@ -103,6 +103,8 @@ def post_giftbox():
     if r.status_code != 200:
         raise Exception('迅雷服务器小霸王中...')
     js = json.loads(r.text)
+    if 'ci' not in js:
+        return
     for item in js['ci']:
         if item['st'] == 0:
             post_opengitf(item['id'])
