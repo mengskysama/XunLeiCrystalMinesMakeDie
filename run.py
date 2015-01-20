@@ -115,15 +115,9 @@ while True:
     try:
         login()
         login_sleep = login_sleep_min
-        try:
-            while True:
-                login()
-                post_giftbox()
-                logging.info(('[%s] 累计领取:%s 累计开箱:%s' % (time.strftime('%H:%M'), g_totalnum, g_totalbox)).decode('utf-8'))
-                time.sleep(50 * 60)
-        except:
-            pass
-            #time.sleep(60)
+        post_giftbox()
+        logging.info(('[%s] 累计领取:%s 累计开箱:%s' % (time.strftime('%H:%M'), g_totalnum, g_totalbox)).decode('utf-8'))
+        time.sleep(50 * 60)
     except:
         if login_sleep < 10 * 60:
             login_sleep += 60
