@@ -1,9 +1,7 @@
 CrystalMinesAndoridClient
 =============
 
-可执行程序不需要自行配置环境，修改config.txt 中账号对应密码直接运行`run.exe`即可。
-
-http://pan.baidu.com/s/1c0eZ2qW
++fork 于 https://github.com/mengskysama/XunLeiCrystalMinesMakeDie 的代码,修改适应了最新的迅雷协议 支持收取**水晶**，**打开宝箱**
 
 
 
