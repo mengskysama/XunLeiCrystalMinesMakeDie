@@ -15,8 +15,12 @@ urllib3.disable_warnings()
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.basicConfig(level=logging.INFO)
 
+## 迅雷用户名、密码
 user = 'user'
 passwd = 'passwd'
+
+##增加是否自动开宝箱的开关(0表示关闭，1表示开启)
+gift_open = 0
 
 PACKET_LOGIN = '{"cmdID":1,"isCompressed":0,"rsaKey":{"n":"D6F1CFBF4D9F70710527E1B1911635460B1FF9AB7C202294D04A6F135A906E90E2398123C234340A3CEA0E5EFDCB4BCF7C613A5A52B96F59871D8AB9D240ABD4481CCFD758EC3F2FDD54A1D4D56BFFD5C4A95810A8CA25E87FDC752EFA047DF4710C7D67CA025A2DC3EA59B09A9F2E3A41D4A7EFBB31C738B35FFAAA5C6F4E6F","e":"010001"},"businessType":61,"passWord":"%s","loginType":0,"appName":"ANDROID-com.xunlei.redcrystalandroid","platformVersion":1,"sessionID":"","protocolVersion":101,"userName":"%s","extensionList":"","sequenceNo":10000001,"peerID":"%s","clientVersion":"1.0.0"}'
 PACKET_LOGIN2 = 'sessionid=%s;userid=%s;origin=1;nickname=%s'
@@ -145,11 +149,14 @@ while True:
         login_sleep = login_sleep_min
         gift,crystal = has_something_to_open()
         
-        if gift > 0:
-            post_giftbox()
-            logging.info(u'>>>> open gift success <<<<')
+        if gift_open > 0:
+            if gift > 0:
+                post_giftbox()
+                logging.info(u'>>>> open gift success <<<<')
+            else:
+                logging.info(u'>>>> no gift box to open <<<<')
         else:
-            logging.info(u'>>>> no gift box to open <<<<')
+            logging.info(u'>>>> pass open gift <<<<')
 
         if crystal > 0 :
             post_crystal()
