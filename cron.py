@@ -15,7 +15,6 @@ urllib3.disable_warnings()
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.basicConfig(level=logging.INFO)
 
-## 迅雷用户名、密码
 user = 'user'
 passwd = 'passwd'
 
@@ -139,33 +138,39 @@ def post_giftbox():
         if item['st'] == 0:
             post_opengitf(item['id'])
 
-login_sleep_min = 60
-login_sleep = login_sleep_min
-while True:
-    try:
-        login()
-        login_sleep = login_sleep_min
-        gift,crystal = has_something_to_open()
-        
-        if gift_open > 0:
-            if gift > 0:
-                post_giftbox()
-                logging.info(u'>>>> open gift success <<<<')
-            else:
-                logging.info(u'>>>> no gift box to open <<<<')
+#login_sleep_min = 60
+#login_sleep = login_sleep_min
+#while True:
+try:
+    login()
+    #login_sleep = login_sleep_min
+    gift,crystal = has_something_to_open()
+    
+    if gift_open > 0:
+        if gift > 0:
+            post_giftbox()
+            logging.info(u'>>>> open gift success <<<<')
         else:
-            logging.info(u'>>>> pass open gift <<<<')
+            logging.info(u'>>>> no gift box to open <<<<')
+    else:
+        logging.info(u'>>>> pass open gift <<<<')
 
-        if crystal > 0 :
-            post_crystal()
-            logging.info(u'>>>> fetch crystal success <<<<')
-        else:
-             logging.info(u'>>>>  no crystal to fetch <<<<')
-        logging.info(u'sleep && waiting for next work')
-        time.sleep(50 * 60)
-    except Exception , e:
-        if login_sleep < 10 * 60:
-            login_sleep += 60
-        logging.warn(('[登录失败]:睡觉%s秒后再试' % (login_sleep)).decode('utf-8'))
-        print e
-        time.sleep(login_sleep)
+    if crystal > 0 :
+        post_crystal()
+        logging.info(u'>>>> fetch crystal success <<<<')
+    else:
+         logging.info(u'>>>>  no crystal to fetch <<<<')
+    logging.info(u'sleep && waiting for next work')
+    #time.sleep(50 * 60)
+except Exception , e:
+    '''
+    if login_sleep < 10 * 60:
+        login_sleep += 60
+    logging.warn(('[登录失败]:睡觉%s秒后再试' % (login_sleep)).decode('utf-8'))
+    '''
+    print e
+    #time.sleep(login_sleep)
+
+
+
+
