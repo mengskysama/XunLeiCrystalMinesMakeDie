@@ -15,11 +15,16 @@ urllib3.disable_warnings()
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.basicConfig(level=logging.INFO)
 
+## 迅雷用户名、密码
 user = 'user'
 passwd = 'passwd'
 
 ##增加是否自动开宝箱的开关(0表示关闭，1表示开启)
-gift_open = 0
+gift_open = 1
+##增加开宝箱耗费水晶上限(0表示只开免费原石，500表示只开<=500的原石)
+cnum = 0
+##增加转盘游戏自动开关(0表示关闭，1表示打开)
+turntable = 1
 
 PACKET_LOGIN = '{"cmdID":1,"isCompressed":0,"rsaKey":{"n":"D6F1CFBF4D9F70710527E1B1911635460B1FF9AB7C202294D04A6F135A906E90E2398123C234340A3CEA0E5EFDCB4BCF7C613A5A52B96F59871D8AB9D240ABD4481CCFD758EC3F2FDD54A1D4D56BFFD5C4A95810A8CA25E87FDC752EFA047DF4710C7D67CA025A2DC3EA59B09A9F2E3A41D4A7EFBB31C738B35FFAAA5C6F4E6F","e":"010001"},"businessType":61,"passWord":"%s","loginType":0,"appName":"ANDROID-com.xunlei.redcrystalandroid","platformVersion":1,"sessionID":"","protocolVersion":101,"userName":"%s","extensionList":"","sequenceNo":10000001,"peerID":"%s","clientVersion":"1.0.0"}'
 PACKET_LOGIN2 = 'sessionid=%s;userid=%s;origin=1;nickname=%s'
@@ -110,24 +115,25 @@ def post_crystal():
         raise Exception('fetch crystal failed')
 
 
-def post_opengitf(id):
-    data = 'id=%s' % id
+def post_opengift(id):
+    #增加切原石方向参数(目前暂定统一传3)
+    data = 'v=1&id=%s&side=3' % id
     h = g_headers2.copy()
     h['X-Requested-With'] = 'XMLHttpRequest'
-    r = requests.post('http://1-api-red.xunlei.com/?r=usr/opengift', data, verify=False, headers=h, cookies=g_cookies)
+    r = requests.post('http://1-api-red.xunlei.com/index.php?r=usr/openStone', data, verify=False, headers=h, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('迅雷服务器小霸王中...')
     js = json.loads(r.text)
-    if js['rd'] == 'ok':
+    if js['r'] == 0:
         global g_totalnum
         global g_totalbox
-        g_totalnum += js['gf']['num']
+        g_totalnum += js['get']['num']
         g_totalbox += 1
-        logging.info(('[领取钻石成功] 获得数量:%s 累计领取:%s 累计开箱:%s' % (js['gf']['num'], g_totalnum, g_totalbox)).decode('utf-8'))
+        logging.info(('[领取钻石成功] 获得数量:%s 累计领取:%s 累计开箱:%s' % (js['get']['num'], g_totalnum, g_totalbox)).decode('utf-8'))
 
 def post_giftbox():
-    data = {}#'p=0&ps=10&ni=&tp=0&t='
-    r = requests.post('http://1-api-red.xunlei.com/?r=usr/giftbox', data, verify=False, headers=g_headers2, cookies=g_cookies)
+    data = 'v=2&cmid=-1&p=0&ps=60&tp=0&t='
+    r = requests.post('http://1-api-red.xunlei.com/index.php?r=usr/giftbox', data, verify=False, headers=g_headers2, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('迅雷服务器小霸王中...')
     js = json.loads(r.text)
@@ -136,7 +142,18 @@ def post_giftbox():
         return
     for item in js['ci']:
         if item['st'] == 0:
-            post_opengitf(item['id'])
+            if item['cnum'] <= cnum:
+                post_opengift(item['id'])
+            else:
+                logging.info(('原石ID:%s 打开需要耗费水晶:%s,超过设定的自动开箱子值:%s 自动放弃！' % (item['id'], item['cnum'], cnum)).decode('utf-8'))
+
+def post_turntable():
+    r = requests.post('http://1-api-red.xunlei.com/index.php?r=turntable/getaward',verify=False, headers=g_headers2, cookies=g_cookies)
+    if r.status_code != 200:
+        raise Exception('转盘游戏运行失败...')
+    js = json.loads(r.text)
+    print js
+    logging.info('转盘结果:%s' % (js['rd'].encode('utf-8')))
 
 #login_sleep_min = 60
 #login_sleep = login_sleep_min
@@ -160,6 +177,13 @@ try:
         logging.info(u'>>>> fetch crystal success <<<<')
     else:
          logging.info(u'>>>>  no crystal to fetch <<<<')
+
+    if turntable > 0 :
+        post_turntable()
+        logging.info(u'>>>> turn table success <<<<')
+    else:
+         logging.info(u'>>>>  turntable off <<<<')
+
     logging.info(u'sleep && waiting for next work')
     #time.sleep(50 * 60)
 except Exception , e:
