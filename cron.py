@@ -19,6 +19,9 @@ logging.basicConfig(level=logging.INFO)
 user = 'user'
 passwd = 'passwd'
 
+##水晶API
+shuijing_api = '2-api-red.xunlei.com'
+
 ##增加是否自动开宝箱的开关(0表示关闭，1表示开启)
 gift_open = 1
 ##增加开宝箱耗费水晶上限(0表示只开免费原石，500表示只开<=500的原石)
@@ -98,7 +101,7 @@ def login():
 ## 获取宝箱信息 
 ## 修改所有获取api地址为最新 @modify by wangchll    
 def has_something_to_open():
-    r = requests.post('http://1-api-red.xunlei.com/?r=mine/info',verify=False, headers=g_headers2, cookies=g_cookies)
+    r = requests.post('http://%s/?r=mine/info' % shuijing_api,verify=False, headers=g_headers2, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('query gift and crystal failed')
     print r.text
@@ -110,17 +113,18 @@ def has_something_to_open():
 
 ## fetch crystal
 def post_crystal():
-     r = requests.post('http://1-api-red.xunlei.com/?r=mine/collect',verify=False, headers=g_headers2, cookies=g_cookies)
+     r = requests.post('http://%s/?r=mine/collect' % shuijing_api,verify=False, headers=g_headers2, cookies=g_cookies)
      if r.status_code != 200:
         raise Exception('fetch crystal failed')
 
 
 def post_opengift(id):
-    #增加切原石方向参数(目前暂定统一传3)
-    data = 'v=1&id=%s&side=3' % id
+    #增加切原石方向参数(1，左切；2，右切；3，竖切)
+    side = random.randint(1,3)
+    data = 'v=1&id=%s&side=%s' % (id, side)
     h = g_headers2.copy()
     h['X-Requested-With'] = 'XMLHttpRequest'
-    r = requests.post('http://1-api-red.xunlei.com/index.php?r=usr/openStone', data, verify=False, headers=h, cookies=g_cookies)
+    r = requests.post('http://%s/index.php?r=usr/openStone' % shuijing_api, data, verify=False, headers=h, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('迅雷服务器小霸王中...')
     js = json.loads(r.text)
@@ -133,7 +137,7 @@ def post_opengift(id):
 
 def post_giftbox():
     data = 'v=2&cmid=-1&p=0&ps=60&tp=0&t='
-    r = requests.post('http://1-api-red.xunlei.com/index.php?r=usr/giftbox', data, verify=False, headers=g_headers2, cookies=g_cookies)
+    r = requests.post('http://%s/index.php?r=usr/giftbox' % shuijing_api, data, verify=False, headers=g_headers2, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('迅雷服务器小霸王中...')
     js = json.loads(r.text)
@@ -148,7 +152,7 @@ def post_giftbox():
                 logging.info(('原石ID:%s 打开需要耗费水晶:%s,超过设定的自动开箱子值:%s 自动放弃！' % (item['id'], item['cnum'], cnum)).decode('utf-8'))
 
 def post_turntable():
-    r = requests.post('http://1-api-red.xunlei.com/index.php?r=turntable/getaward',verify=False, headers=g_headers2, cookies=g_cookies)
+    r = requests.post('http://%s/index.php?r=turntable/getaward' % shuijing_api,verify=False, headers=g_headers2, cookies=g_cookies)
     if r.status_code != 200:
         raise Exception('转盘游戏运行失败...')
     js = json.loads(r.text)
