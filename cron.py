@@ -20,7 +20,7 @@ user = 'user'
 passwd = 'passwd'
 
 ##水晶API
-shuijing_api = '2-api-red.xunlei.com'
+shuijing_api = '1-api-red.xunlei.com'
 
 ##增加是否自动开宝箱的开关(0表示关闭，1表示开启)
 gift_open = 1
@@ -88,7 +88,7 @@ def login():
         logging.info('[登录失败]'.decode('utf-8'))
         raise Exception('login faild...')
     logging.info(('[登录成功:%s]' % ret['nickName'].encode('utf-8')).decode('utf-8'))
-    
+
     g_userID = ret['userID']
     g_cookies['sessionid'] = ret['sessionID']
     g_cookies['userid'] = str(ret['userID']).encode('utf-8')
@@ -98,8 +98,8 @@ def login():
     #g_cookies['nickname'] = ('%s' % ret['nickName'].encode('utf-8')).decode('utf-8')
 
 
-## 获取宝箱信息 
-## 修改所有获取api地址为最新 @modify by wangchll    
+## 获取宝箱信息
+## 修改所有获取api地址为最新 @modify by wangchll
 def has_something_to_open():
     r = requests.post('http://%s/?r=mine/info' % shuijing_api,verify=False, headers=g_headers2, cookies=g_cookies)
     if r.status_code != 200:
@@ -166,7 +166,7 @@ try:
     login()
     #login_sleep = login_sleep_min
     gift,crystal = has_something_to_open()
-    
+
     if gift_open > 0:
         if gift > 0:
             post_giftbox()
@@ -198,7 +198,3 @@ except Exception , e:
     '''
     print e
     #time.sleep(login_sleep)
-
-
-
-
