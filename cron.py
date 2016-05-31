@@ -93,7 +93,7 @@ def login():
         raise Exception('迅雷服务器小霸王中...')
     ret = json.loads(r.text)
     if 'nickName' not in ret:
-        logging.info('[登录失败]'.decode('utf-8'))
+		logging.info('[登录失败]'.decode('utf-8'))
 		raise Exception('login faild...')
     logging.info(('[登录成功:%s]' % ret['nickName'].encode('utf-8')).decode('utf-8'))
 
