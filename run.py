@@ -29,10 +29,10 @@ cnum = 0
 ##增加转盘游戏自动开关(0表示关闭，1表示打开)
 turntable = 1
 
-PACKET_LOGIN = '{"cmdID":1,"isCompressed":0,"rsaKey":{"n":"D6F1CFBF4D9F70710527E1B1911635460B1FF9AB7C202294D04A6F135A906E90E2398123C234340A3CEA0E5EFDCB4BCF7C613A5A52B96F59871D8AB9D240ABD4481CCFD758EC3F2FDD54A1D4D56BFFD5C4A95810A8CA25E87FDC752EFA047DF4710C7D67CA025A2DC3EA59B09A9F2E3A41D4A7EFBB31C738B35FFAAA5C6F4E6F","e":"010001"},"businessType":61,"passWord":"%s","loginType":0,"appName":"ANDROID-com.xunlei.redcrystalandroid","platformVersion":1,"sessionID":"","protocolVersion":101,"userName":"%s","extensionList":"","sequenceNo":10000001,"peerID":"%s","clientVersion":"1.0.0"}'
+PACKET_LOGIN = '{"cmdID":1,"isCompressed":0,"rsaKey":{"n":"AC69F5CCC8BDE47CD3D371603748378C9CFAD2938A6B021E0E191013975AD683F5CBF9ADE8BD7D46B4D2EC2D78AF146F1DD2D50DC51446BB8880B8CE88D476694DFC60594393BEEFAA16F5DBCEBE22F89D640F5336E42F587DC4AFEDEFEAC36CF007009CCCE5C1ACB4FF06FBA69802A8085C2C54BADD0597FC83E6870F1E36FD","e":"010001"},"businessType":61,"passWord":"%s","loginType":0,"appName":"ANDROID-com.xunlei.redcrystalandroid","platformVersion":1,"sessionID":"","protocolVersion":108,"userName":"%s","extensionList":"","sequenceNo":10000001,"peerID":"%s","clientVersion":"1.0.0","sdkVersion":177588,"devicesign":"%s","extensionList":""}'
 PACKET_LOGIN2 = 'sessionid=%s;userid=%s;origin=1;nickname=%s'
 s = requests.Session()
-g_headers = {'User-Agent': 'android-async-http/1.4.3 (http://loopj.com/android-async-http)'}
+g_headers = {'User-Agent': 'android-async-http/xl-acc-sdk/version-1.0.0.1'}
 g_headers2 = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
 g_cookies = {}
 g_peerid = ''
@@ -41,7 +41,7 @@ g_totalnum = 0
 g_totalbox = 0
 g_unget= 0
 
-n = '00D6F1CFBF4D9F70710527E1B1911635460B1FF9AB7C202294D04A6F135A906E90E2398123C234340A3CEA0E5EFDCB4BCF7C613A5A52B96F59871D8AB9D240ABD4481CCFD758EC3F2FDD54A1D4D56BFFD5C4A95810A8CA25E87FDC752EFA047DF4710C7D67CA025A2DC3EA59B09A9F2E3A41D4A7EFBB31C738B35FFAAA5C6F4E6F'
+n = '00AC69F5CCC8BDE47CD3D371603748378C9CFAD2938A6B021E0E191013975AD683F5CBF9ADE8BD7D46B4D2EC2D78AF146F1DD2D50DC51446BB8880B8CE88D476694DFC60594393BEEFAA16F5DBCEBE22F89D640F5336E42F587DC4AFEDEFEAC36CF007009CCCE5C1ACB4FF06FBA69802A8085C2C54BADD0597FC83E6870F1E36FD'
 e = '010001'
 
 import hashlib
@@ -72,13 +72,21 @@ def gen_passwd(passwd):
 def gen_peerID():
     return string.join(random.sample('ABCDEF0123456789', 16)).replace(' ', '')
 
+def gen_devicesign(passwd):
+	pwd_md5 = hashlib.md5(passwd).hexdigest()
+	guid = hashlib.md5("C2049664-1E4A-4E1C-A475-977F0E207C9C").hexdigest()
+	fake_device_id = hashlib.md5("%s23333" % pwd_md5).hexdigest() # just generate a 32bit string
+    # sign = div.10?.md5(sha1(packageName + businessType + md5(a protocolVersion specific GUID)))
+	device_sign = "div100.%s%s" % (fake_device_id, hashlib.md5(hashlib.sha1("%scom.xunlei.redcrystalandroid61%s" % (fake_device_id, guid)).hexdigest()).hexdigest())
+   	return device_sign
+
 g_peerid = gen_peerID()
 
 def login():
     global g_headers
     global g_cookies
     global g_peerid
-    data = PACKET_LOGIN % (gen_passwd(passwd), user, g_peerid)
+    data = PACKET_LOGIN % (gen_passwd(passwd), user, g_peerid, gen_devicesign(passwd))
     r = requests.post('https://login.mobile.reg2t.sandai.net:443/', data, verify=False, headers=g_headers)
     if r.status_code != 200:
         logging.warn('status code %s' % r.status_code)
