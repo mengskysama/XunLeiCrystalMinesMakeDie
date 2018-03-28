@@ -93,8 +93,8 @@ def login():
         raise Exception('迅雷服务器小霸王中...')
     ret = json.loads(r.text)
     if 'nickName' not in ret:
-        logging.info('[登录失败]'.decode('utf-8'))
-        raise Exception('login faild...')
+		logging.info('[登录失败]'.decode('utf-8'))
+		raise Exception('login faild...')
     logging.info(('[登录成功:%s]' % ret['nickName'].encode('utf-8')).decode('utf-8'))
 
     g_userID = ret['userID']
@@ -167,39 +167,42 @@ def post_turntable():
     print js
     logging.info('转盘结果:%s' % (js['rd'].encode('utf-8')))
 
-login_sleep_min = 60
-login_sleep = login_sleep_min
-while True:
-    try:
-        login()
-        login_sleep = login_sleep_min
-        gift,crystal = has_something_to_open()
+#login_sleep_min = 60
+#login_sleep = login_sleep_min
+#while True:
+try:
+    login()
+    #login_sleep = login_sleep_min
+    gift,crystal = has_something_to_open()
 
-        if gift_open > 0:
-            if gift > 0:
-                post_giftbox()
-                logging.info(u'>>>> open gift success <<<<')
-            else:
-                logging.info(u'>>>> no gift box to open <<<<')
+    if gift_open > 0:
+        if gift > 0:
+            post_giftbox()
+            logging.info(u'>>>> open gift success <<<<')
         else:
-            logging.info(u'>>>> pass open gift <<<<')
+            logging.info(u'>>>> no gift box to open <<<<')
+    else:
+        logging.info(u'>>>> pass open gift <<<<')
 
-        if crystal > 0 :
-            post_crystal()
-            logging.info(u'>>>> fetch crystal success <<<<')
-        else:
-             logging.info(u'>>>>  no crystal to fetch <<<<')
+    if crystal > 0 :
+        post_crystal()
+        logging.info(u'>>>> fetch crystal success <<<<')
+    else:
+         logging.info(u'>>>>  no crystal to fetch <<<<')
 
-        if turntable > 0 :
-            post_turntable()
-            logging.info(u'>>>> turn table success <<<<')
-        else:
-             logging.info(u'>>>>  turntable off <<<<')
+    if turntable > 0 :
+        post_turntable()
+        logging.info(u'>>>> turn table success <<<<')
+    else:
+         logging.info(u'>>>>  turntable off <<<<')
 
-        time.sleep(50 * 60)
-    except Exception , e:
-        if login_sleep < 10 * 60:
-            login_sleep += 60
-        logging.warn(('[登录失败]:睡觉%s秒后再试' % (login_sleep)).decode('utf-8'))
-        print e
-        time.sleep(login_sleep)
+    logging.info(u'sleep && waiting for next work')
+    #time.sleep(50 * 60)
+except Exception , e:
+    '''
+    if login_sleep < 10 * 60:
+        login_sleep += 60
+    logging.warn(('[登录失败]:睡觉%s秒后再试' % (login_sleep)).decode('utf-8'))
+    '''
+    print e
+    #time.sleep(login_sleep)
